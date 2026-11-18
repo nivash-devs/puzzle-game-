@@ -72,7 +72,7 @@ func _ready() -> void:
 	crate_done_tex = load(PA + "Items/Boxes/Box3/Idle.png")
 	dust_tex = load(PA + "Other/Dust Particle.png")
 	confetti_tex = load(PA + "Other/Confetti (16x16).png")
-	font = ThemeDB.fallback_font
+	font = load("res://assets/fonts/PressStart2P-Regular.ttf")
 
 	var bg_layer := CanvasLayer.new()
 	bg_layer.layer = -1
@@ -215,7 +215,7 @@ func _start_level(n: int) -> void:
 			if c in "@+":
 				player_cell = cell
 	_fill_floor()
-	origin = ((VIEW - Vector2(w, rows.size()) * CELL) / 2.0).floor() + Vector2(0, 10)
+	origin = ((VIEW - Vector2(w, rows.size()) * CELL) / 2.0).floor() + Vector2(0, 2)
 	for b in boxes:
 		var s := Sprite2D.new()
 		s.z_index = 2
@@ -537,7 +537,7 @@ func _draw() -> void:
 
 
 func _text(s: String, pos: Vector2, size: int, color: Color, width: float = -1.0, align := HORIZONTAL_ALIGNMENT_LEFT) -> void:
-	ui.draw_string_outline(font, pos, s, align, width, size, 5, Color(0.1, 0.05, 0.12))
+	ui.draw_string_outline(font, pos, s, align, width, size, 4, Color(0.1, 0.05, 0.12))
 	ui.draw_string(font, pos, s, align, width, size, color)
 
 
@@ -560,16 +560,16 @@ func _draw_ui() -> void:
 	match screen:
 		Screen.TITLE:
 			var bob := sin(t * 2.5) * 3.0
-			_text("CRATE PUSH", Vector2(0, 92 + bob), 48, gold, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
-			_text("Push every crate onto a gold plate", Vector2(0, 118), 14, Color.WHITE, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
+			_text("CRATE PUSH", Vector2(0, 92 + bob), 28, gold, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
+			_text("Push every crate onto a gold plate", Vector2(0, 118), 8, Color.WHITE, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
 			if int(t * 2.0) % 2 == 0:
-				_text("Press SPACE to play", Vector2(0, 220), 16, gold, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
+				_text("Press SPACE to play", Vector2(0, 220), 10, gold, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
 			var total := 0
 			for k in best:
 				total += _stars_for(k, best[k])
-			_text("Stars: %d / %d" % [total, LEVELS.size() * 3], Vector2(0, 252), 12, Color(0.85, 0.85, 1), VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
+			_text("Stars: %d / %d" % [total, LEVELS.size() * 3], Vector2(0, 252), 8, Color(0.85, 0.85, 1), VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
 		Screen.SELECT:
-			_text("CHOOSE A LEVEL", Vector2(0, 50), 26, gold, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
+			_text("CHOOSE A LEVEL", Vector2(0, 50), 18, gold, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
 			for i in LEVELS.size():
 				var r := _select_rect(i)
 				var open := _unlocked(i)
@@ -578,24 +578,23 @@ func _draw_ui() -> void:
 					fill = fill.lightened(0.25)
 				ui.draw_rect(r, fill)
 				ui.draw_rect(r, gold if i == cursor else Color(0.1, 0.05, 0.12), false, 3.0 if i == cursor else 2.0)
-				_text(str(i + 1) if open else "?", r.position + Vector2(0, 36), 24, Color.WHITE if open else Color(0.5, 0.45, 0.55), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				_text(str(i + 1) if open else "?", r.position + Vector2(0, 36), 16, Color.WHITE if open else Color(0.5, 0.45, 0.55), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 				var stars := _stars_for(i, best[i]) if best.has(i) else 0
 				for s in 3:
 					_star(r.position + Vector2(16 + s * 16, 52), 6.0, s < stars)
-			_text("Arrows choose   SPACE play   Esc back", Vector2(0, 262), 12, Color(0.85, 0.85, 1), VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
+			_text("Arrows choose   SPACE play   Esc back", Vector2(0, 262), 8, Color(0.85, 0.85, 1), VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
 		Screen.PLAY:
-			var par: int = LEVELS[level][1]
-			_text("LEVEL %d" % (level + 1), Vector2(8, 18), 16, gold)
-			_text("Moves %d   Par %d" % [moves, par], Vector2(0, 18), 14, Color.WHITE, VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
-			_text("Z undo  R restart  Esc levels", Vector2(0, 18), 11, Color(0.85, 0.85, 1), VIEW.x - 8, HORIZONTAL_ALIGNMENT_RIGHT)
+			_text("LEVEL %d" % (level + 1), Vector2(8, 20), 10, gold)
+			_text("Moves %d" % moves, Vector2(0, 20), 10, Color.WHITE, VIEW.x - 8, HORIZONTAL_ALIGNMENT_RIGHT)
+			_text("Z undo   R restart   Esc levels", Vector2(0, 268), 8, Color(0.85, 0.85, 1), VIEW.x, HORIZONTAL_ALIGNMENT_CENTER)
 			if won:
 				var panel := Rect2(110, 82, 260, 120)
 				ui.draw_rect(panel, Color(0.12, 0.08, 0.18, 0.92))
 				ui.draw_rect(panel, gold, false, 3.0)
-				_text("LEVEL CLEAR!", panel.position + Vector2(0, 32), 26, gold, panel.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				_text("LEVEL CLEAR!", panel.position + Vector2(0, 32), 16, gold, panel.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 				var stars := _stars_for(level, moves)
 				for s in 3:
 					_star(panel.position + Vector2(100 + s * 30, 56), 11.0, s < stars)
-				_text("%d moves  (par %d)" % [moves, par], panel.position + Vector2(0, 90), 13, Color.WHITE, panel.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				_text("%d moves" % moves, panel.position + Vector2(0, 90), 10, Color.WHITE, panel.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 				var next := "SPACE next level" if level < LEVELS.size() - 1 else "SPACE back to levels"
-				_text(next + "   R retry", panel.position + Vector2(0, 110), 12, Color(0.85, 0.85, 1), panel.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				_text(next + "   R retry", panel.position + Vector2(0, 110), 8, Color(0.85, 0.85, 1), panel.size.x, HORIZONTAL_ALIGNMENT_CENTER)
