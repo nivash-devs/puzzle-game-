@@ -80,7 +80,7 @@ func _add_strip(sf: SpriteFrames, anim: StringName, path: String, fps: float) ->
 	var tex: Texture2D = load(path)
 	sf.add_animation(anim)
 	sf.set_animation_speed(anim, fps)
-	for i in tex.get_width() / 32:
+	for i in floori(tex.get_width() / 32.0):
 		var at := AtlasTexture.new()
 		at.atlas = tex
 		at.region = Rect2(i * 32, 0, 32, 32)
